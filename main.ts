@@ -1,6 +1,7 @@
 namespace SpriteKind {
     export const sword_img = SpriteKind.create()
     export const evil_kind = SpriteKind.create()
+    export const spider_kind = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const evil_hp = StatusBarKind.create()
@@ -14,6 +15,10 @@ function room_anilathaor_idk_how_spel () {
     sprites.destroyAllSpritesOfKind(SpriteKind.evil_kind)
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.evil_kind, function (sprite, otherSprite) {
+    my_hp.value += -50
+    pause(200)
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile`, function (sprite, location) {
     level += 1
     room_anilathaor_idk_how_spel()
@@ -21,7 +26,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile`, function (sprite, lo
 })
 function spider_fella_sp () {
     spider_list = [assets.image`myImage4`, assets.image`myImage8`, assets.image`myImage9`]
-    spider_fela = sprites.create(spider_list._pickRandom(), SpriteKind.evil_kind)
+    spider_fela = sprites.create(spider_list._pickRandom(), SpriteKind.spider_kind)
     tiles.placeOnRandomTile(spider_fela, sprites.dungeon.floorLight0)
     spide_fella_hp = statusbars.create(20, 4, StatusBarKind.spider_hp)
     spide_fella_hp.max = 25
@@ -47,6 +52,10 @@ function roomtoucher () {
     }
     sprite_cranberry()
 }
+statusbars.onZero(StatusBarKind.Health, function (status) {
+    game.splash("you died loser")
+    game.gameOver(false)
+})
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     controller.moveSprite(mySprite, 100, 100)
 })
@@ -83,6 +92,10 @@ sprites.onOverlap(SpriteKind.sword_img, SpriteKind.Player, function (sprite, oth
         `)
     sprites.destroy(sprite)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.spider_kind, function (sprite, otherSprite) {
+    my_hp.value += -25
+    pause(200)
+})
 function sprite_cranberry () {
     if (level == 1) {
         for (let index = 0; index < 3; index++) {
@@ -98,12 +111,13 @@ function sprite_cranberry () {
     }
 }
 let evil_fella_hp: StatusBarSprite = null
-let evil_fella: Sprite = null
 let evil_list: Image[] = []
 let sword_img: Sprite = null
 let spide_fella_hp: StatusBarSprite = null
 let spider_fela: Sprite = null
 let spider_list: Image[] = []
+let evil_fella: Sprite = null
+let my_hp: StatusBarSprite = null
 let mySprite: Sprite = null
 let level = 0
 level = 0
@@ -125,10 +139,10 @@ mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     `, SpriteKind.Player)
-let my_hp = statusbars.create(100, 4, StatusBarKind.Health)
-my_hp.max = 250
-my_hp.value = 250
+my_hp = statusbars.create(100, 4, StatusBarKind.Health)
+my_hp.max = 251
+my_hp.value = 251
 my_hp.positionDirection(CollisionDirection.Top)
 my_hp.setColor(7, 2)
-my_hp.setStatusBarFlag(StatusBarFlag.SmoothTransition, true)
 roomtoucher()
+evil_fella = sprites.create(assets.image`myImage5`, SpriteKind.evil_kind)
