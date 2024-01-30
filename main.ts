@@ -2,6 +2,7 @@ namespace SpriteKind {
     export const sword_img = SpriteKind.create()
     export const evil_kind = SpriteKind.create()
     export const spider_kind = SpriteKind.create()
+    export const slash = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const evil_hp = StatusBarKind.create()
@@ -20,9 +21,23 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.evil_kind, function (sprite, oth
     pause(200)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile`, function (sprite, location) {
-    level += 1
-    room_anilathaor_idk_how_spel()
-    roomtoucher()
+    if (level == 0) {
+        if (sprites.allOfKind(SpriteKind.evil_kind).length == 0 && sprites.allOfKind(SpriteKind.sword_img).length == 0) {
+            level += 1
+            room_anilathaor_idk_how_spel()
+            roomtoucher()
+        }
+    } else if (level == 1) {
+        if (sprites.allOfKind(SpriteKind.evil_kind).length == 0 && sprites.allOfKind(SpriteKind.spider_kind).length == 0) {
+            level += 1
+            room_anilathaor_idk_how_spel()
+            roomtoucher()
+        }
+    }
+})
+sprites.onOverlap(SpriteKind.slash, SpriteKind.spider_kind, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite)
+    sprites.destroy(sprite)
 })
 function spider_fella_sp () {
     spider_list = [assets.image`myImage4`, assets.image`myImage8`, assets.image`myImage9`]
@@ -31,8 +46,37 @@ function spider_fella_sp () {
     spide_fella_hp = statusbars.create(20, 4, StatusBarKind.spider_hp)
     spide_fella_hp.max = 25
     spide_fella_hp.attachToSprite(spider_fela)
-    spider_fela.follow(mySprite, randint(50, 100))
+    spider_fela.follow(mySprite, randint(50, 99))
 }
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (sprites.allOfKind(SpriteKind.sword_img).length == 0) {
+        if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingUp))) {
+            slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
+            slash.setPosition(mySprite.x, mySprite.y + -25)
+            timer.after(100, function () {
+                sprites.destroy(slash)
+            })
+        } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingDown))) {
+            slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
+            slash.setPosition(mySprite.x, mySprite.y - -25)
+            timer.after(100, function () {
+                sprites.destroy(slash)
+            })
+        } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingRight))) {
+            slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
+            slash.setPosition(mySprite.x - -25, mySprite.y)
+            timer.after(100, function () {
+                sprites.destroy(slash)
+            })
+        } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingLeft))) {
+            slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
+            slash.setPosition(mySprite.x + -25, mySprite.y)
+            timer.after(100, function () {
+                sprites.destroy(slash)
+            })
+        }
+    }
+})
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     controller.moveSprite(mySprite, 100, 100)
 })
@@ -92,6 +136,10 @@ sprites.onOverlap(SpriteKind.sword_img, SpriteKind.Player, function (sprite, oth
         `)
     sprites.destroy(sprite)
 })
+sprites.onOverlap(SpriteKind.slash, SpriteKind.evil_kind, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite)
+    sprites.destroy(sprite)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.spider_kind, function (sprite, otherSprite) {
     my_hp.value += -25
     pause(200)
@@ -113,6 +161,7 @@ function sprite_cranberry () {
 let evil_fella_hp: StatusBarSprite = null
 let evil_list: Image[] = []
 let sword_img: Sprite = null
+let slash: Sprite = null
 let spide_fella_hp: StatusBarSprite = null
 let spider_fela: Sprite = null
 let spider_list: Image[] = []
