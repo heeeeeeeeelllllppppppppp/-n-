@@ -36,8 +36,11 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile`, function (sprite, lo
     }
 })
 sprites.onOverlap(SpriteKind.slash, SpriteKind.spider_kind, function (sprite, otherSprite) {
-    sprites.destroy(otherSprite)
-    sprites.destroy(sprite)
+    sprites.destroy(sprite, effects.disintegrate, 500)
+    statusbars.getStatusBarAttachedTo(StatusBarKind.spider_hp, otherSprite).value += -25
+    if (statusbars.getStatusBarAttachedTo(StatusBarKind.spider_hp, otherSprite).value <= 0) {
+        sprites.destroy(otherSprite, effects.disintegrate, 500)
+    }
 })
 function spider_fella_sp () {
     spider_list = [assets.image`myImage4`, assets.image`myImage8`, assets.image`myImage9`]
@@ -52,25 +55,25 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (sprites.allOfKind(SpriteKind.sword_img).length == 0) {
         if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingUp))) {
             slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
-            slash.setPosition(mySprite.x, mySprite.y + -25)
+            slash.setPosition(mySprite.x, mySprite.y + -20)
             timer.after(100, function () {
                 sprites.destroy(slash)
             })
         } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingDown))) {
             slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
-            slash.setPosition(mySprite.x, mySprite.y - -25)
+            slash.setPosition(mySprite.x, mySprite.y - -20)
             timer.after(100, function () {
                 sprites.destroy(slash)
             })
         } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingRight))) {
             slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
-            slash.setPosition(mySprite.x - -25, mySprite.y)
+            slash.setPosition(mySprite.x - -20, mySprite.y)
             timer.after(100, function () {
                 sprites.destroy(slash)
             })
         } else if (characterAnimations.matchesRule(mySprite, characterAnimations.rule(Predicate.FacingLeft))) {
             slash = sprites.create(assets.image`myImage2`, SpriteKind.slash)
-            slash.setPosition(mySprite.x + -25, mySprite.y)
+            slash.setPosition(mySprite.x + -20, mySprite.y)
             timer.after(100, function () {
                 sprites.destroy(slash)
             })
@@ -94,8 +97,9 @@ function roomtoucher () {
         tiles.setCurrentTilemap(tilemap`level0`)
         tiles.placeOnRandomTile(mySprite, sprites.dungeon.collectibleInsignia)
     }
-    sprite_cranberry()
+    sprite_cranberry(level)
 }
+// i got the status bar from the extension https://jwunderl.github.io/pxt-status-bar/
 statusbars.onZero(StatusBarKind.Health, function (status) {
     game.splash("you died loser")
     game.gameOver(false)
@@ -137,35 +141,38 @@ sprites.onOverlap(SpriteKind.sword_img, SpriteKind.Player, function (sprite, oth
     sprites.destroy(sprite)
 })
 sprites.onOverlap(SpriteKind.slash, SpriteKind.evil_kind, function (sprite, otherSprite) {
-    sprites.destroy(otherSprite)
     sprites.destroy(sprite)
+    statusbars.getStatusBarAttachedTo(StatusBarKind.evil_hp, otherSprite).value += -25
+    if (statusbars.getStatusBarAttachedTo(StatusBarKind.evil_hp, otherSprite).value <= 0) {
+        sprites.destroy(otherSprite, effects.disintegrate, 500)
+    }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.spider_kind, function (sprite, otherSprite) {
     my_hp.value += -25
     pause(200)
 })
-function sprite_cranberry () {
+function sprite_cranberry (how_much_sp: number) {
     if (level == 1) {
-        for (let index = 0; index < 3; index++) {
+        for (let index = 0; index < how_much_sp + 1; index++) {
             evil_fella_sp()
         }
     } else if (level == 2) {
-        for (let index = 0; index < 4; index++) {
+        for (let index = 0; index < how_much_sp + 2; index++) {
             evil_fella_sp()
         }
-        for (let index = 0; index < 2; index++) {
+        for (let index = 0; index < how_much_sp; index++) {
             spider_fella_sp()
         }
     }
 }
 let evil_fella_hp: StatusBarSprite = null
+let evil_fella: Sprite = null
 let evil_list: Image[] = []
 let sword_img: Sprite = null
 let slash: Sprite = null
 let spide_fella_hp: StatusBarSprite = null
 let spider_fela: Sprite = null
 let spider_list: Image[] = []
-let evil_fella: Sprite = null
 let my_hp: StatusBarSprite = null
 let mySprite: Sprite = null
 let level = 0
@@ -189,9 +196,9 @@ mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     `, SpriteKind.Player)
 my_hp = statusbars.create(100, 4, StatusBarKind.Health)
+// i got the status bar from the extension https://jwunderl.github.io/pxt-status-bar/
 my_hp.max = 251
 my_hp.value = 251
 my_hp.positionDirection(CollisionDirection.Top)
 my_hp.setColor(7, 2)
 roomtoucher()
-evil_fella = sprites.create(assets.image`myImage5`, SpriteKind.evil_kind)
